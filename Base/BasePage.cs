@@ -1,8 +1,8 @@
-
+using Genpact.Conf;
 using Microsoft.Playwright;
 using NLog;
 
-namespace Genpact.Conf;
+namespace Genpact.Base;
 
 public class BasePage
 {
