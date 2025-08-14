@@ -1,0 +1,10 @@
+//  Copy of this file should reside at: <AUTOMATION_PROJECT>\bin\Debug\net8.0	 <AUTOMATION_PROJECT>=Genpact
+{
+	"allure": {
+		"directory": "allure-results", // Output directory for test report files
+		"title": "Genpact - Suite Test Report"
+	},
+	"tms": {
+		"title": "Genpact - Test Automation Results" // Title for the Allure report (optional)
+	}
+}
