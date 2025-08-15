@@ -71,6 +71,8 @@ public class WikiCompareCountsTest : BaseTest
         UINormalizedText = NormalizeRawTextAsync(UIRawText);
         UIUniqueWords = UICountUniqueWords(UINormalizedText);
         APIRawText = await this.GetDebuggingFeaturesTextAPIAsync();
+        APINormalizedText = NormalizeRawTextAsync(APIRawText);
+        APIUniqueWords = UICountUniqueWords(APINormalizedText);
         //await this.Page.PauseAsync(); //TODO
         logger.Info("CompareTextCount(): Test End.");
     }
@@ -144,17 +146,12 @@ public class WikiCompareCountsTest : BaseTest
         string action = "parse";
         string pageName = "Playwright_(software)";
         string prop = "text";
-        string formatVersion = "2";
+        string format = "json";
 
-        var (result, status_code) = await this.GetPlaywrightSoftwareTextApi.GetPlaywrightSoftwareTextAsync(this.BrowserContext, action, pageName, prop, formatVersion);
-        var DebuggingFeaturesHeadingtxt = await this.WikiPageLoators.DebuggingFeaturesHeading.InnerTextAsync();
-        var DebuggingFeaturesSubHeadingtxt = await this.WikiPageLoators.DebuggingFeaturesSubHeading.InnerTextAsync();
-        var listItems = await this.WikiPageLoators.DebuggingFeaturesBuiltInArray.AllInnerTextsAsync();
-        var DebuggingFeaturesBuiltInArraytxt = string.Join(" ", listItems);
-
-        var combinedText = $"{DebuggingFeaturesHeadingtxt} {DebuggingFeaturesSubHeadingtxt} {DebuggingFeaturesBuiltInArraytxt}";
-        logger.Info($"Raw Combined Text: {combinedText} ");
+        var (result, status_code) = await this.GetPlaywrightSoftwareTextApi.GetPlaywrightSoftwareTextAsync(this.BrowserContext, action, pageName, prop, format);
+        Assert.That(status_code,Is.True, "API call failed or returned an unexpected status code.");
+        logger.Info($"Raw API Result Text: {result} ");
         logger.Info("GetDebuggingFeaturesTextAPIAsync(): Done.");
-        return combinedText;
+        return result;
     }
 }
