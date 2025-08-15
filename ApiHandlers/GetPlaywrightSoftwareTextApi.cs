@@ -11,17 +11,17 @@ public class GetPlaywrightSoftwareTextApi
 {
     private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
-    public async Task<(JsonObject, Boolean)> GetPlaywrightSoftwareTextAsync(IBrowserContext contex, string action ,string pageName,string prop,string formatVersion)
+    public async Task<(string, Boolean)> GetPlaywrightSoftwareTextAsync(IBrowserContext contex, string action ,string pageName,string prop,string format)
     {
         
-        var url = $"{Config.MediaWikiBaseUrl}action={action}&page={pageName}&prop={prop}&formatversion={formatVersion}";
+        var url = $"{Config.MediaWikiBaseUrl}action={action}&page={pageName}&prop={prop}&format={format}";
 
         APIRequestContextOptions customeApiRequestContextOptions = PlaywrightDriver.GetApiRequestContextOptions();
 
         _logger.Info($"About to send request: {url}");
         var response = await contex.APIRequest.GetAsync($"{url}", customeApiRequestContextOptions);
-        var linesForDlrPageJsonResponse = await response.JsonAsync<JsonObject?>();
-        if (linesForDlrPageJsonResponse == null || linesForDlrPageJsonResponse.Count == 0)
+        var playwrightSoftwareJsonResponse = await response.JsonAsync<JsonObject?>();
+        if (playwrightSoftwareJsonResponse == null || playwrightSoftwareJsonResponse.Count == 0)
         {
             _logger.Info("The JSON response is Null or Empty");
             throw new InvalidOperationException();
@@ -31,8 +31,7 @@ public class GetPlaywrightSoftwareTextApi
             _logger.Info($"Response Status Code Is: {response.Status.ToString()}");
             Assert.Fail("Wrong response status code");
         }
-        string responseStr = JsonSerializer.Serialize(response);
-        _logger.Info($"Response body is: {responseStr}");
-        return (linesForDlrPageJsonResponse, true);
+        string responseStr = playwrightSoftwareJsonResponse.ToJsonString();
+        return (responseStr, true);
     }
 }
