@@ -104,7 +104,6 @@ public class PlaywrightDriver
     public static APIRequestContextOptions GetApiRequestContextOptions()
     {
         var headers = new Dictionary<string, string>();
-        //headers.Add("Authorization", $"Bearer {token}");
         headers.Add("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
 
         var apiRequestContextOptions = new APIRequestContextOptions
