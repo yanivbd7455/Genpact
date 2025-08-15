@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="ApiHandlers\GetPlaywrightSoftwareText.cs" />
+    <None Include="ApiHandlers\GetPlaywrightSoftwareTextApi.cs" />
   </ItemGroup>
 
   <ItemGroup>
