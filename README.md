@@ -7,7 +7,7 @@ This repository contains automation tests for both UI and REST API, implemented 
 - **Page Object Model:** Design pattern used for maintaining test automation code.
 - **NLog:** Used for logging purposes.
 - **Allure:** Can be managed with Docker-based reporting tool for generating test reports.
-- For this particual test will be managed locally. 
+              For this particual test will be managed locally. 
 - **Git:** Version control system for managing the codebase.
 
 
