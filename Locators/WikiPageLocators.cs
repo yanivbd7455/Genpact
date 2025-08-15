@@ -1,5 +1,4 @@
 using Microsoft.Playwright;
-using Genpact.Base;
 
 namespace Genpact.Locators;
 
@@ -17,5 +16,4 @@ public class WikiPageLocators
     public ILocator DebuggingFeaturesHeading => _page.GetByRole(AriaRole.Heading, new() { Name = "Debugging features" });
     public ILocator DebuggingFeaturesSubHeading => _page.GetByText("Playwright includes built-in");
     public ILocator DebuggingFeaturesBuiltInArray => _page.Locator("#mw-content-text > div.mw-content-ltr.mw-parser-output > ul:nth-child(27)");
-
 }
