@@ -2,7 +2,6 @@ using Genpact.Base;
 using Genpact.Conf;
 using Microsoft.Playwright;
 using NLog;
-using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace Genpact.ApiHandlers;
