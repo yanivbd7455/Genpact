@@ -5,7 +5,8 @@ This repository contains automation tests for both UI and REST API, implemented 
 - **Playwright (C#):** Used for both UI and REST API testing.
 - **NUnit:** Framework used for organizing and running tests.
 - **Page Object Model:** Design pattern used for maintaining test automation code.
-- **NLog:** Used for logging purposes.
+- **NLog:** Used for logging purposes - After execution log file: genpac-log-execution.log
+            can be found at: 'C:\Genpact\bin\Debug\net8.0'
 - **Allure:** Can be managed with Docker-based reporting tool for generating test reports.
               For this particual test will be managed locally. 
 - **Git:** Version control system for managing the codebase.
