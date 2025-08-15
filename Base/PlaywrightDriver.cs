@@ -100,4 +100,32 @@ public class PlaywrightDriver
         #endregion
         return context;
     }
+
+    public static APIRequestContextOptions GetApiRequestContextOptions()
+    {
+        var headers = new Dictionary<string, string>();
+        //headers.Add("Authorization", $"Bearer {token}");
+        headers.Add("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+
+        var apiRequestContextOptions = new APIRequestContextOptions
+        {
+            Headers = headers,
+        };
+        #region APIRequestContextOptions
+        /*Data = clone.Data;
+        DataByte = clone.DataByte;
+        DataObject = clone.DataObject;
+        DataString = clone.DataString;
+        FailOnStatusCode = clone.FailOnStatusCode;
+        Form = clone.Form;
+        Headers = clone.Headers;
+        IgnoreHTTPSErrors = clone.IgnoreHTTPSErrors;
+        MaxRedirects = clone.MaxRedirects;
+        Method = clone.Method;
+        Multipart = clone.Multipart;
+        Params = clone.Params;
+        Timeout = clone.Timeout;*/
+        #endregion
+        return apiRequestContextOptions;
+    }
 }
