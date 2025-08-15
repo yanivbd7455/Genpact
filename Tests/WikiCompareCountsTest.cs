@@ -1,11 +1,13 @@
 using Allure.NUnit;
 using Allure.NUnit.Attributes;
+using Genpact.ApiHandlers;
 using Genpact.Base;
 using Genpact.Locators;
 using Genpact.POM;
 using Microsoft.Playwright;
 using NLog;
 using NUnit.Framework;
+using System;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace E2E.Tests;
@@ -19,9 +21,13 @@ public class WikiCompareCountsTest : BaseTest
     private static readonly Logger logger = LogManager.GetCurrentClassLogger();
     private WikiPage WikiPage { get; set; }
     private WikiPageLocators WikiPageLoators { get; set; }
-    private string RawText { get; set; }
-    private string NormalizedText { get; set; }
+    private string UIRawText { get; set; }
+    private string UINormalizedText { get; set; }
+    private GetPlaywrightSoftwareTextApi GetPlaywrightSoftwareTextApi { get; set; }
     private HashSet<string> UIUniqueWords { get; set; }
+    private string APIRawText { get; set; }
+    private string APINormalizedText { get; set; }
+    private HashSet<string> APIUniqueWords { get; set; }
 
     [SetUp]
     [AllureBefore("Setup session")]
@@ -30,9 +36,13 @@ public class WikiCompareCountsTest : BaseTest
         logger.Info("Setup Start.");
         this.WikiPage = new WikiPage(this.Page);
         this.WikiPageLoators = new WikiPageLocators(this.Page);
-        this.RawText = string.Empty;
-        this.NormalizedText = string.Empty;
+        this.UIRawText = string.Empty;
+        this.UINormalizedText = string.Empty;
+        this.GetPlaywrightSoftwareTextApi = new GetPlaywrightSoftwareTextApi();
         this.UIUniqueWords = new HashSet<string>();
+        this.APIRawText = string.Empty;
+        this.APINormalizedText = string.Empty;
+        this.APIUniqueWords = new HashSet<string>();
     }
 
     [TearDown]
@@ -57,9 +67,10 @@ public class WikiCompareCountsTest : BaseTest
         logger.Info("CompareTextCount(): Test Start.");
         await this.NavigateToWikiPageAsync();
         await this.NavigateToDebuggingFeaturesAsync();
-        RawText = await this.GetDebuggingFeaturesTextAsync();
-        NormalizedText = NormalizeRawTextAsync(RawText);
-        UIUniqueWords = UICountUniqueWords(NormalizedText);
+        UIRawText = await this.GetDebuggingFeaturesTextUIAsync();
+        UINormalizedText = NormalizeRawTextAsync(UIRawText);
+        UIUniqueWords = UICountUniqueWords(UINormalizedText);
+        APIRawText = await this.GetDebuggingFeaturesTextAPIAsync();
         //await this.Page.PauseAsync(); //TODO
         logger.Info("CompareTextCount(): Test End.");
     }
@@ -84,10 +95,10 @@ public class WikiCompareCountsTest : BaseTest
     }
 
 
-    [AllureStep("Get 'Debugging Features' Text")]
-    protected async Task<string> GetDebuggingFeaturesTextAsync()
+    [AllureStep("Get 'Debugging Features' Text - UI")]
+    protected async Task<string> GetDebuggingFeaturesTextUIAsync()
     {
-        logger.Info("GetDebuggingFeaturesText(): Start.");
+        logger.Info("GetDebuggingFeaturesTextUIAsync(): Start.");
         var DebuggingFeaturesHeadingtxt = await this.WikiPageLoators.DebuggingFeaturesHeading.InnerTextAsync();
         var DebuggingFeaturesSubHeadingtxt = await this.WikiPageLoators.DebuggingFeaturesSubHeading.InnerTextAsync();
         var listItems = await this.WikiPageLoators.DebuggingFeaturesBuiltInArray.AllInnerTextsAsync();
@@ -95,7 +106,7 @@ public class WikiCompareCountsTest : BaseTest
 
         var combinedText = $"{DebuggingFeaturesHeadingtxt} {DebuggingFeaturesSubHeadingtxt} {DebuggingFeaturesBuiltInArraytxt}";
         logger.Info($"Raw Combined Text: {combinedText} ");
-        logger.Info("GetDebuggingFeaturesText(): Done.");
+        logger.Info("GetDebuggingFeaturesTextUIAsync(): Done.");
         return combinedText;
     }
 
@@ -117,10 +128,33 @@ public class WikiCompareCountsTest : BaseTest
         return normalized;
     }
 
-    [AllureStep("Count Unique Words")]
+    [AllureStep("Count Unique Words - UI")]
     protected static HashSet<string> UICountUniqueWords(string normalizedText)
     {
+        logger.Info("UICountUniqueWords(): Start.");
         var words = normalizedText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        logger.Info("UICountUniqueWords(): Start.");
         return new HashSet<string>(words);
+    }
+
+    [AllureStep("Get 'Debugging Features' Text - API")]
+    protected async Task<string> GetDebuggingFeaturesTextAPIAsync()
+    {
+        logger.Info("GetDebuggingFeaturesTextAPIAsync(): Start.");
+        string action = "parse";
+        string pageName = "Playwright_(software)";
+        string prop = "text";
+        string formatVersion = "2";
+
+        var (result, status_code) = await this.GetPlaywrightSoftwareTextApi.GetPlaywrightSoftwareTextAsync(this.BrowserContext, action, pageName, prop, formatVersion);
+        var DebuggingFeaturesHeadingtxt = await this.WikiPageLoators.DebuggingFeaturesHeading.InnerTextAsync();
+        var DebuggingFeaturesSubHeadingtxt = await this.WikiPageLoators.DebuggingFeaturesSubHeading.InnerTextAsync();
+        var listItems = await this.WikiPageLoators.DebuggingFeaturesBuiltInArray.AllInnerTextsAsync();
+        var DebuggingFeaturesBuiltInArraytxt = string.Join(" ", listItems);
+
+        var combinedText = $"{DebuggingFeaturesHeadingtxt} {DebuggingFeaturesSubHeadingtxt} {DebuggingFeaturesBuiltInArraytxt}";
+        logger.Info($"Raw Combined Text: {combinedText} ");
+        logger.Info("GetDebuggingFeaturesTextAPIAsync(): Done.");
+        return combinedText;
     }
 }
