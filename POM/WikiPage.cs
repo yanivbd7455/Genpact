@@ -23,9 +23,4 @@ public class WikiPage : BasePage
         await this.Page.WaitForLoadStateAsync(LoadState.Load);
         await this.Page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
     }
-
-/*    public async Task NavigateDebuggingFeaturesSection()
-    {
-        await this.WikiPageLocators.
-    }*/
 }
