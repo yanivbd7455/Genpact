@@ -18,9 +18,9 @@ public class WikiPage : BasePage
         {
             throw new ArgumentNullException(nameof(this.BaseUrl), "Base URL is not set.");
         }
-        await this.Page.GotoAsync(this.BaseUrl, new PageGotoOptions { WaitUntil = WaitUntilState.Load, Timeout = 120000 });
-        await this.Page.WaitForLoadStateAsync(LoadState.DOMContentLoaded, new PageWaitForLoadStateOptions { Timeout = 120000 });
-        await this.Page.WaitForLoadStateAsync(LoadState.Load, new PageWaitForLoadStateOptions { Timeout = 120000 });
+        await this.Page.GotoAsync(this.BaseUrl, new PageGotoOptions { WaitUntil = WaitUntilState.Load});
+        await this.Page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
+        await this.Page.WaitForLoadStateAsync(LoadState.Load);
         await this.Page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
     }
 
