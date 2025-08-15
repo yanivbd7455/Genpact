@@ -4,11 +4,9 @@ using Genpact.ApiHandlers;
 using Genpact.Base;
 using Genpact.Locators;
 using Genpact.POM;
-using Microsoft.Playwright;
+using HtmlAgilityPack;
 using NLog;
-using NUnit.Framework;
-using System;
-using static System.Net.Mime.MediaTypeNames;
+using System.Net;
 
 namespace E2E.Tests;
 
@@ -29,6 +27,7 @@ public class WikiCompareCountsTest : BaseTest
     private string APINormalizedText { get; set; }
     private HashSet<string> APIUniqueWords { get; set; }
 
+
     [SetUp]
     [AllureBefore("Setup session")]
     public void Setup()
@@ -45,6 +44,7 @@ public class WikiCompareCountsTest : BaseTest
         this.APIUniqueWords = new HashSet<string>();
     }
 
+
     [TearDown]
     [AllureAfter("Teardown session")]
     public async Task Teardown()
@@ -55,6 +55,7 @@ public class WikiCompareCountsTest : BaseTest
         await this.Browser.CloseAsync();
         logger.Info("Teardown End.");
     }
+
 
     [Test]
     [AllureName("UI and API count equal")]
@@ -71,11 +72,14 @@ public class WikiCompareCountsTest : BaseTest
         UINormalizedText = NormalizeRawTextAsync(UIRawText);
         UIUniqueWords = UICountUniqueWords(UINormalizedText);
         APIRawText = await this.GetDebuggingFeaturesTextAPIAsync();
-        APINormalizedText = NormalizeRawTextAsync(APIRawText);
+        string debuggingSectionRaw = this.ExtractDebuggingSection(APIRawText);
+        APINormalizedText = NormalizeRawHtmlTextAsync(debuggingSectionRaw);
         APIUniqueWords = UICountUniqueWords(APINormalizedText);
-        //await this.Page.PauseAsync(); //TODO
+        bool areEqual = AreHashSetsEqual(APIUniqueWords, UIUniqueWords);
+        Assert.That(areEqual, Is.True, "The unique words count from UI and API do not match.");
         logger.Info("CompareTextCount(): Test End.");
     }
+
 
     [AllureStep("Navigate To Wiki Page")]
     protected async Task NavigateToWikiPageAsync()
@@ -85,6 +89,7 @@ public class WikiCompareCountsTest : BaseTest
         await this.Expect(this.WikiPageLoators.PlaywrightSoftwareHeading).ToBeVisibleAsync();
         logger.Info("NavigateToWikiPage(): Done.");
     }
+
 
     [AllureStep("Navigate To Debugging Features")]
     protected async Task NavigateToDebuggingFeaturesAsync()
@@ -117,13 +122,8 @@ public class WikiCompareCountsTest : BaseTest
     protected static string NormalizeRawTextAsync(string text)
     {
         logger.Info("NormalizeTextAsync(): Start.");
-        // Convert to lowercase.
         var normalized = text.ToLowerInvariant();
-
-        // Remove punctuation and numbers using a Regex.
         normalized = Regex.Replace(normalized, @"[^\p{L}\s]", "");
-
-        // Collapse multiple spaces into a single space.
         normalized = Regex.Replace(normalized, @"\s+", " ").Trim();
         logger.Info($"Normalized Text: {normalized} ");
         logger.Info("NormalizeTextAsync(): Done.");
@@ -153,5 +153,65 @@ public class WikiCompareCountsTest : BaseTest
         logger.Info($"Raw API Result Text: {result} ");
         logger.Info("GetDebuggingFeaturesTextAPIAsync(): Done.");
         return result;
+    }
+
+    [AllureStep("Extract Debugging Section")]
+    protected string ExtractDebuggingSection(string allRawText)
+    {
+        logger.Info("ExtractDebuggingSection(): Start.");
+        string extracted = string.Empty;
+        string startText = "Debugging_features";
+        string endText = "monitoring";
+
+        int startIndex = allRawText.IndexOf(startText);
+        if (startIndex >= 0)
+        {
+            int endIndex = allRawText.IndexOf(endText, startIndex);
+            if (endIndex > startIndex)
+            {
+                endIndex += endText.Length;
+                extracted = allRawText.Substring(startIndex, endIndex - startIndex);
+                logger.Info($"Extracted Text: {extracted} ");
+            }
+            else
+            {
+                logger.Error($"End text: {endText}, not found after start text.");
+            }
+        }
+        else
+        {
+            logger.Error($"Start text: {startText}, not found.");
+        }
+
+        logger.Info("ExtractDebuggingSection(): Done.");
+        return extracted;
+    }
+
+
+    [AllureStep("Normalize Raw HTML Text")]
+    protected static string NormalizeRawHtmlTextAsync(string text)
+    {
+        logger.Info("NormalizeRawHtmlTextAsync(): Start.");
+        string normalized = string.Empty;
+
+        if (string.IsNullOrEmpty(text))
+            return string.Empty;
+        text = Regex.Replace(text, @"^Debugging_features", "", RegexOptions.IgnoreCase);
+        string unicodeDecoded = Regex.Unescape(text);
+        string htmlDecoded = WebUtility.HtmlDecode(unicodeDecoded);
+        string noHtml = Regex.Replace(htmlDecoded, "<.*?>", " ");
+        string lower = noHtml.ToLowerInvariant();
+        string noPunct = Regex.Replace(lower, @"[^\w\s]", "");
+        normalized = Regex.Replace(noPunct, @"\s+", " ").Trim();
+        normalized = normalized.Replace("edit ","");
+        logger.Info("NormalizeRawHtmlTextAsync(): Done.");
+        return normalized;
+    }
+
+
+    [AllureStep("Compare two unique words structure")]
+    public static bool AreHashSetsEqual(HashSet<string> apiWords, HashSet<string> uiWords)
+    {
+        return apiWords.SetEquals(uiWords);
     }
 }
